@@ -1,0 +1,8 @@
+# Antigravity - Teacher Solutions Shield
+_Soluciones_Privadas/
+
+# SQLite Databases (optional, keeps students from getting your pre-populated DBs)
+# *.db
+
+# OS Files
+.DS_Store
