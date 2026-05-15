@@ -40,9 +40,9 @@ FROM FactVentas
 GROUP BY CiudadID
 ORDER BY Margen_Aproximado ASC;
 -- Respuesta paso 2:
--- 1. ¿Qué CiudadID tiene Margen_Aproximado negativo? Ninguno en esta consulta original sin multiplicar el envío, pero al multiplicarlo por cantidad, Leticia (2) sería el único.
--- 2. ¿Cuánto es esa pérdida? Con el ajuste, la pérdida es -131,330.0 (un margen de -52.55%).
--- 3. ¿Coincide con el número de Power BI de S4? SÍ, coincide al ajustar la multiplicación.
+-- 1. ¿Qué CiudadID tiene Margen_Aproximado negativo? Ninguno en esta base de datos simplificada.
+-- 2. ¿Cuánto es esa pérdida? No hay pérdida, Leticia (2) tiene el margen más bajo con 134,920.0.
+-- 3. ¿Coincide con el número de Power BI de S4? NO. Falta restar el 'Costo_Mercancia_Vendida' que sí estaba en S4 (lo cual daba aprox -55.5K).
 -- Paso 3: SUM vs AVG
 SELECT CiudadID,
     ROUND(SUM(Costo_Envio), 2) AS Costo_TOTAL,
@@ -107,10 +107,10 @@ SELECT c.Ciudad AS Ciudad,
         ),
         2
     ) AS Venta_Neta,
-    ROUND(SUM(f.Costo_Envio * f.Cantidad), 2) AS Costo_Envio_Total,
+    ROUND(SUM(f.Costo_Envio), 2) AS Costo_Envio_Total,
     ROUND(
         SUM(
-            f.Precio_Venta * f.Cantidad * (1 - f.Descuento_Pct) - (f.Costo_Envio * f.Cantidad)
+            f.Precio_Venta * f.Cantidad * (1 - f.Descuento_Pct) - f.Costo_Envio
         ),
         2
     ) AS Margen_Aproximado
@@ -119,9 +119,9 @@ FROM FactVentas f
 GROUP BY c.Ciudad
 ORDER BY Margen_Aproximado ASC;
 -- Respuesta consulta maestra:
--- 1. ¿Aparece 'Leticia' con Margen_Aproximado negativo? SÍ, aparece con margen negativo.
--- 2. ¿Cuánto es esa pérdida? Es de -131,330.0 (lo que representa un margen de -52.55%).
--- 3. ¿Coincide este resultado con el dashboard de Power BI de S4? SÍ, coincide con la pérdida observada.
+-- 1. ¿Aparece 'Leticia' con Margen_Aproximado negativo? NO, aparece con margen positivo de 134,920.0.
+-- 2. ¿Cuánto es esa pérdida? No hay pérdida en este cálculo.
+-- 3. ¿Coincide este resultado con el dashboard de Power BI de S4? NO. (En S4 daba una pérdida aproximada de -55.5K. La diferencia se debe a que en esta base de datos simplificada NO se incluyó la columna 'Costo_Mercancia_Vendida').
 -- ═══════════════════════════════════════════════════════════════
 -- 🚀 PRÁCTICA AUTÓNOMA (ENTREGABLES)
 -- Escribe tus consultas debajo de cada enunciado.
@@ -147,8 +147,8 @@ LIMIT 1;
 -- E3: (Difícil) Reproduce la tabla del dashboard de S4 completa: Ciudad, Ventas, Utilidad, Margen%. Con nombres reales.
 SELECT c.Ciudad AS Ciudad,
        ROUND(SUM(f.Precio_Venta * f.Cantidad * (1 - f.Descuento_Pct)), 2) AS Ventas,
-       ROUND(SUM(f.Precio_Venta * f.Cantidad * (1 - f.Descuento_Pct) - (f.Costo_Envio * f.Cantidad)), 2) AS Utilidad,
-       ROUND((SUM(f.Precio_Venta * f.Cantidad * (1 - f.Descuento_Pct) - (f.Costo_Envio * f.Cantidad)) / 
+       ROUND(SUM(f.Precio_Venta * f.Cantidad * (1 - f.Descuento_Pct) - f.Costo_Envio), 2) AS Utilidad,
+       ROUND((SUM(f.Precio_Venta * f.Cantidad * (1 - f.Descuento_Pct) - f.Costo_Envio) / 
               SUM(f.Precio_Venta * f.Cantidad * (1 - f.Descuento_Pct))) * 100, 2) AS "Margen%"
 FROM FactVentas f
 INNER JOIN DimCiudad c ON f.CiudadID = c.CiudadID
