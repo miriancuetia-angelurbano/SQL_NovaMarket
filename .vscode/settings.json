@@ -1,3 +1,10 @@
 {
-    "sqltools.useNodeRuntime": false
+    "sqltools.useNodeRuntime": false,
+    "sqltools.connections": [
+        {
+            "name": "NovaMarket S08-S09",
+            "driver": "SQLite",
+            "database": "${workspaceFolder}/03_Sesion_08_09/Novamarket_S08S09.db"
+        }
+    ]
 }

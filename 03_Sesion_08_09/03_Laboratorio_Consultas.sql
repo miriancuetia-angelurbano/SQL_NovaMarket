@@ -14,6 +14,9 @@ SELECT CiudadID,
     Costo_Envio
 FROM FactVentas
 LIMIT 5;
+--Respuesta paso 1:
+-- 1. ¿Cuántas filas retorna GROUP BY? Retorna 6 filas.
+-- 2. ¿Por qué? Porque agrupa los 500 registros de la tabla en 6 grupos únicos, uno por cada CiudadID que existe.
 -- Si agrupamos, vemos el total:
 SELECT CiudadID,
     COUNT(*) AS Filas
@@ -36,6 +39,10 @@ SELECT CiudadID,
 FROM FactVentas
 GROUP BY CiudadID
 ORDER BY Margen_Aproximado ASC;
+-- Respuesta paso 2:
+-- 1. ¿Qué CiudadID tiene Margen_Aproximado negativo? Ninguno en esta base de datos.
+-- 2. ¿Cuánto es esa pérdida? No hay pérdida, el margen más bajo es el de CiudadID 2 (Leticia) con 134,920.0.
+-- 3. ¿Coincide con el número de Power BI de S4? NO.
 -- Paso 3: SUM vs AVG
 SELECT CiudadID,
     ROUND(SUM(Costo_Envio), 2) AS Costo_TOTAL,
@@ -43,6 +50,9 @@ SELECT CiudadID,
 FROM FactVentas
 WHERE CiudadID = 6
 GROUP BY CiudadID;
+-- Respuesta paso 3:
+-- ¿Para decidir si cerrar Leticia, cuál usarías: SUM o AVG?
+-- Usaría SUM para ver el impacto financiero total (el hueco que deja en la rentabilidad general), aunque el AVG es útil para ver qué tan caro es un solo envío.
 -- ══ PARTE 2 — JOIN (Nombres Reales) ════════════════════════════
 -- Paso 4: El primer JOIN: 'Leticia' en lugar de '6'
 SELECT f.TransaccionID,
@@ -53,6 +63,9 @@ FROM FactVentas f
     INNER JOIN DimCiudad c ON f.CiudadID = c.CiudadID
 WHERE c.Ciudad = 'Leticia'
 LIMIT 5;
+-- Respuesta paso 4:
+-- 1. ¿Qué columna une las dos tablas? La columna CiudadID.
+-- 2. ¿Por qué ahora aparece 'Leticia' y no '6'? Porque gracias al INNER JOIN traemos el nombre real (c.Ciudad) desde la tabla DimCiudad.
 -- Paso 5: Doble JOIN: ciudad Y producto
 SELECT f.TransaccionID,
     c.Ciudad AS Ciudad,
@@ -105,16 +118,42 @@ FROM FactVentas f
     INNER JOIN DimCiudad c ON f.CiudadID = c.CiudadID
 GROUP BY c.Ciudad
 ORDER BY Margen_Aproximado ASC;
+-- Respuesta consulta maestra:
+-- 1. ¿Aparece 'Leticia' con Margen_Aproximado negativo? NO, aparece con margen positivo.
+-- 2. ¿Cuánto es esa pérdida? No hay pérdida, la utilidad es de 134,920.0.
+-- 3. ¿Coincide este resultado con el dashboard de Power BI de S4? NO.
 -- ═══════════════════════════════════════════════════════════════
 -- 🚀 PRÁCTICA AUTÓNOMA (ENTREGABLES)
 -- Escribe tus consultas debajo de cada enunciado.
 -- ═══════════════════════════════════════════════════════════════
 -- E1: (Fácil) Muestra nombre del producto, categoría y venta neta total de cada producto. Ordena de mayor a menor.
--- [Tu código para E1 aquí]
+SELECT p.Producto, 
+       p.Categoria, 
+       ROUND(SUM(f.Precio_Venta * f.Cantidad * (1 - f.Descuento_Pct)), 2) AS Venta_Neta
+FROM FactVentas f
+INNER JOIN DimProducto p ON f.ProductoID = p.ProductoID
+GROUP BY p.Producto, p.Categoria
+ORDER BY Venta_Neta DESC;
 -- E2: (Medio) ¿Cuál producto vendió más en Leticia? Usa JOIN + WHERE + GROUP BY.
--- [Tu código para E2 aquí]
+SELECT p.Producto, 
+       ROUND(SUM(f.Precio_Venta * f.Cantidad * (1 - f.Descuento_Pct)), 2) AS Venta_Neta
+FROM FactVentas f
+INNER JOIN DimCiudad c ON f.CiudadID = c.CiudadID
+INNER JOIN DimProducto p ON f.ProductoID = p.ProductoID
+WHERE c.Ciudad = 'Leticia'
+GROUP BY p.Producto
+ORDER BY Venta_Neta DESC
+LIMIT 1;
 -- E3: (Difícil) Reproduce la tabla del dashboard de S4 completa: Ciudad, Ventas, Utilidad, Margen%. Con nombres reales.
--- [Tu código para E3 aquí]
+SELECT c.Ciudad AS Ciudad,
+       ROUND(SUM(f.Precio_Venta * f.Cantidad * (1 - f.Descuento_Pct)), 2) AS Ventas,
+       ROUND(SUM(f.Precio_Venta * f.Cantidad * (1 - f.Descuento_Pct) - f.Costo_Envio), 2) AS Utilidad,
+       ROUND((SUM(f.Precio_Venta * f.Cantidad * (1 - f.Descuento_Pct) - f.Costo_Envio) / 
+              SUM(f.Precio_Venta * f.Cantidad * (1 - f.Descuento_Pct))) * 100, 2) AS "Margen%"
+FROM FactVentas f
+INNER JOIN DimCiudad c ON f.CiudadID = c.CiudadID
+GROUP BY c.Ciudad
+ORDER BY Utilidad DESC;
 -- ═══════════════════════════════════════════════════════════════
 -- ¡Fin de la Unidad 2! Prepárate para Python en la Unidad 3.
 -- ═══════════════════════════════════════════════════════════════
