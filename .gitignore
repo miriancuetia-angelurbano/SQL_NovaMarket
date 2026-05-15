@@ -6,3 +6,6 @@ _Soluciones_Privadas/
 
 # OS Files
 .DS_Store
+
+# Temporary grading files
+grading_temp/
