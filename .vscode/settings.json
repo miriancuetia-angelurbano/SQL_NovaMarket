@@ -4,7 +4,7 @@
         {
             "name": "NovaMarket S08-S09",
             "driver": "SQLite",
-            "database": "${workspaceFolder}/03_Sesion_08_09/Novamarket_S08S09.db"
+            "database": "${workspaceFolder}/03_Sesion_08_09/novamarket_MIRIANCUETIA_Y_ANGELURBANO_s08s09.db"
         }
     ]
 }
