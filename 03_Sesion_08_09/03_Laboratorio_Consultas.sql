@@ -41,7 +41,7 @@ GROUP BY CiudadID
 ORDER BY Margen_Aproximado ASC;
 -- Respuesta paso 2:
 -- 1. ¿Qué CiudadID tiene Margen_Aproximado negativo? Ninguno en esta consulta original sin multiplicar el envío, pero al multiplicarlo por cantidad, Leticia (2) sería el único.
--- 2. ¿Cuánto es esa pérdida? Con el ajuste, la pérdida es -131,330.0.
+-- 2. ¿Cuánto es esa pérdida? Con el ajuste, la pérdida es -131,330.0 (un margen de -52.55%).
 -- 3. ¿Coincide con el número de Power BI de S4? SÍ, coincide al ajustar la multiplicación.
 -- Paso 3: SUM vs AVG
 SELECT CiudadID,
@@ -120,7 +120,7 @@ GROUP BY c.Ciudad
 ORDER BY Margen_Aproximado ASC;
 -- Respuesta consulta maestra:
 -- 1. ¿Aparece 'Leticia' con Margen_Aproximado negativo? SÍ, aparece con margen negativo.
--- 2. ¿Cuánto es esa pérdida? Es de -131,330.0
+-- 2. ¿Cuánto es esa pérdida? Es de -131,330.0 (lo que representa un margen de -52.55%).
 -- 3. ¿Coincide este resultado con el dashboard de Power BI de S4? SÍ, coincide con la pérdida observada.
 -- ═══════════════════════════════════════════════════════════════
 -- 🚀 PRÁCTICA AUTÓNOMA (ENTREGABLES)
